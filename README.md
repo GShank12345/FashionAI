@@ -1,16 +1,28 @@
-# FashionAI
 
-# Project title : Explore Fashion AI
 
-# Description: Explore Fashion AI allows you to upload an image of the fabric to describe the sheen, texture and other related information.
+# Project title : 
 
-# Dependencies: npm install, javascript, express.js for running the server and sending messages in port 3000. Only works for 3000, for other ports modify textarea1.js, index.html( inside public folder in paypal-minimal) and server.js. (inside paypal-minimal) to include other ports. crypto.js - for encryption and decryption AWS Lambda - for OpenAI key storage , environment variables to store Paypal sandbox client-id and client secret,
+Explore Fashion AI
 
-# environment variables: set the PayPal sandbox client id and Client secret in .env in the root folder
+# Description: 
 
-# locally run the server - First run node server.js
+Explore Fashion AI allows you to upload an image of the fabric to describe the sheen, texture and other related information.
 
-# UI tool - Chrome extension - enable developer mode and then load the unpacked extension and run.
+# Dependencies: 
+
+npm install, javascript, express.js for running the server and sending messages in port 3000. Only works for 3000, for other ports modify textarea1.js, index.html( inside public folder in paypal-minimal) and server.js. (inside paypal-minimal) to include other ports. crypto.js - for encryption and decryption AWS Lambda - for OpenAI key storage , environment variables to store Paypal sandbox client-id and client secret,
+
+# environment variables: 
+
+set the PayPal sandbox client id and Client secret in .env in the root folder
+
+# locally run the server: 
+
+First run node server.js
+
+# UI tool:
+
+Chrome extension - enable developer mode and then load the unpacked extension and run.
 
 #Testing
 1. Run the server in the local machine node server.js
