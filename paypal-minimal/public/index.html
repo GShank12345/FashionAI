@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PayPal Checkout</title>
+  </head>
+  <body>
+     <text><h1>Explore Fashion AI </h1></text>
+    <text><h2>'Explore Fashion AI'  charges $1:99 per browser session, if you agree press the PayPal button, if not cancel. </h2></text>
+    <div id="paypal-button-container"></div>
+    <div id="result-message"></div>
+    <script>
+      // Pass the createOrder, onApprove, onCancel, and onError callbacks to the SDK
+      var mess = ""
+      async function createOrder(data) {
+        const response = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // We don't recommend passing order amounts from the client
+          // Your API should exchange a SKU for amount values
+          body: JSON.stringify({ sku: "PAYCLOTH2026" }),
+        });
+        const { id } = await response.json();
+        return { orderId: id };
+      }
+
+      async function onApprove(data) {
+        const { orderId } = data;
+        const response = await fetch(`/api/orders/${orderId}/capture`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const orderData = await response.json();
+       
+        mess = orderData.status 
+        console.log("The payment is approved ................", mess, orderData.status)
+       // return orderData;
+       var timer = setTimeout(function(){
+        {
+            clearInterval(timer);
+            window.close()
+        }
+        },500)
+       return mess
+       
+      }
+
+     async function onCancel(data) {
+      console.log("Inside cancel===========")
+      document.getElementById("result-message").innerHTML =
+          `<p style="color: orange;">Payment cancelled</p>`;
+       var { mess } = data
+       console.log("message...in index..........",data)
+       if ((mess == undefined) || ( mess== null))
+       {
+        mess = 'Payment Cancelled'
+       }
+        console.log("message....in cancel.......",mess)
+         
+      //  console.log("response...........",response)
+      //  const mess1 = await response;  
+        return mess;
+       }
+
+       async function onMess(mess) {
+        console.log("Inside message===========")
+        var mess1 = mess
+        const response = await fetch(`/api/messages`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+         console.log("In messages -----------",mess1)
+         return mess1
+       }
+
+      function onError(err) {
+        console.error("PayPal Error:", err);
+        let errorMessage = "An error occurred. Please try again.";
+        // Handle specific error codes
+        if (err.message && err.message.includes("INSUFFICIENT_FUNDS")) {
+          errorMessage = "Payment declined due to insufficient funds.";
+        } else if (err.message && err.message.includes("INSTRUMENT_DECLINED")) {
+          errorMessage =
+            "Your payment method was declined. Please try another.";
+        } else if (err.message && err.message.includes("TRANSACTION_REFUSED")) {
+          errorMessage = "Transaction was refused. Please contact support.";
+        } else if (err.message && err.message.includes("DUPLICATE_INVOICE")) {
+          errorMessage =
+            "This order has already been processed. Please refresh and try again.";
+        }
+        mess = errorMessage
+        document.getElementById("result-message").innerHTML =
+          `<p style="color: red;">${errorMessage}</p>`;
+      }
+
+      // After the browser is done downloading the SDK, it will invoke onLoad()
+      // and begin the SDK setup
+      async function onLoad() {
+        try {
+          const sdkInstance = await window.paypal.createInstance({
+            clientId: "", //*********** clientId is safe to put in plaintext on the client
+            components: ["paypal-payments"],
+          });
+
+          const eligibility = await sdkInstance.findEligibleMethods();
+          const isPayPalEligible = eligibility.isEligible("paypal");
+
+          if (isPayPalEligible) {
+            const paypalButton = document.createElement("paypal-button");
+            document
+              .querySelector("#paypal-button-container")
+              .append(paypalButton);
+
+            const paypalCheckoutSession =
+              await sdkInstance.createPayPalOneTimePaymentSession({
+                onApprove,
+                onCancel,
+                onError,
+                onMess,
+              });
+
+            paypalButton.addEventListener("click", async () => {
+              try {
+                // Get the promise reference by invoking createOrder()
+                // Do not await this async function since it can cause transient activation issues
+                const createOrderPromise = createOrder();
+                await paypalCheckoutSession.start(
+                  { presentationMode: "auto" },
+                  createOrderPromise,
+                );
+              } catch (error) {
+                console.error(error);
+              }
+            });
+          }
+         
+        } catch (error) { 
+          console.error(error);
+        }
+
+         
+
+              paypalCancel.addEventListener("click", async () => {
+                window.close()
+              })
+      }
+    </script>
+    <style>
+      .button {
+        color: rgb(11, 11, 155);
+        text-align : center;
+        font-size:20px;
+        padding:15px;
+        height: 50px;
+        width: 135px;
+        border: 0;
+        font-weight: bold;
+        font-style: italic;
+      }
+      .button1 {
+        background-color: #FFC439;
+      }
+
+    </style>
+    <br><button class="button1 button" id="paypalCancel">Cancel</button>
+    <script
+      async
+      src="https://www.sandbox.paypal.com/web-sdk/v6/core"
+      onload="onLoad()"
+    ></script>
+    
+  </body>
+</html>
